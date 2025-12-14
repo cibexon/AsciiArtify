@@ -1,5 +1,4 @@
 #!/bin/bash
-# asciiartify_k3d_demo.sh
 
 echo "=== Демонстрація K3d для AsciiArtify ==="
 sleep 1
