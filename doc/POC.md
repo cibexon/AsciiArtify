@@ -23,6 +23,7 @@ k3d cluster create asciiartify-poc \
   --servers 1 \
   --agents 1 \
   --port "8080:80@loadbalancer"
+```
 
 ## Крок 2: Налаштування доступу до веб-інтерфейсу ArgoCD
 
@@ -32,16 +33,21 @@ k3d cluster create asciiartify-poc \
 
 ```bash
 kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+
 Залиште цей процес запущеним для доступу до UI.
 
 Отримайте початковий пароль адміністратора. Пароль автоматично генерується і зберігається у секреті:
 
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+```
+
 Запишіть цей пароль.
 
 ## Крок 3: Доступ до графічного інтерфейсу ArgoCD
-Відкрийте браузер і перейдіть за адресою: https://localhost:8080
+
+Відкрийте браузер і перейдіть за адресою: <https://localhost:8080>
 
 На екрані входу:
 
