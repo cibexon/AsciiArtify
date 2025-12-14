@@ -123,14 +123,3 @@
 | **CI/CD налаштування (місяць 2)** | Kind | - | Стабільність в CI, декларативна конфігурація |
 | **Продакшн-подібне тестування (місяць 3)** | Minikube | Kind | Повна сумісність з production |
 | **Фінальна валідація (перед релізом)** | Minikube | Kind + K3d | Комплексне тестування на всіх платформах |
-
-## Демонстрація роботи з k3d (рекомендований інструмент)
-
-### Встановлення k3d
-
-```bash
-# Linux/macOS
-curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
-# Windows (через Chocolatey)
-choco install k3d
