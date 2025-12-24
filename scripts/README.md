@@ -39,13 +39,9 @@ kubectl kubeplugin <namespace> <тип-ресурсу>
 
 ## Параметри
 
-<namespace>:
-
 Ім'я namespace (наприклад: default, kube-system)
 
 all - для всіх namespaces
-
-<тип-ресурсу>:
 
 pods - Pods
 
