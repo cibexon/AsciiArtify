@@ -1,0 +1,148 @@
+#!/bin/bash
+
+# Kubernetes Resource Usage Plugin for kubectl
+# Usage: kubectl plugin kubeplugin <namespace> <resource-type>
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Help function
+show_help() {
+    cat << EOF
+Kubernetes Resource Usage Plugin for kubectl
+
+Usage:
+  kubectl kubeplugin <namespace> <resource-type>
+  kubectl kubeplugin --help
+  kubectl kubeplugin --version
+
+Examples:
+  kubectl kubeplugin kube-system pods
+  kubectl kubeplugin default deployments
+  kubectl kubeplugin all namespaces
+
+Resource Types:
+  pods, deployments, statefulsets, daemonsets, replicasets, cronjobs, jobs
+
+EOF
+}
+
+# Version function
+show_version() {
+    echo "kubeplugin v1.0.0"
+}
+
+# Validate kubectl is available
+check_kubectl() {
+    if ! command -v kubectl &> /dev/null; then
+        echo -e "${RED}Error: kubectl is not installed or not in PATH${NC}"
+        exit 1
+    fi
+    
+    if ! kubectl cluster-info &> /dev/null; then
+        echo -e "${RED}Error: Cannot connect to Kubernetes cluster${NC}"
+        exit 1
+    fi
+}
+
+# Validate resource type
+validate_resource_type() {
+    local valid_types=("pods" "deployments" "statefulsets" "daemonsets" "replicasets" "cronjobs" "jobs")
+    
+    for valid_type in "${valid_types[@]}"; do
+        if [[ "$1" == "$valid_type" ]]; then
+            return 0
+        fi
+    done
+    
+    echo -e "${RED}Error: Invalid resource type '$1'${NC}"
+    echo "Valid resource types: ${valid_types[*]}"
+    exit 1
+}
+
+# Get resource usage statistics
+get_resource_usage() {
+    local namespace="$1"
+    local resource_type="$2"
+    local namespace_flag=""
+    
+    # Handle "all namespaces" case
+    if [[ "$namespace" == "all" ]]; then
+        namespace_flag="--all-namespaces"
+        namespace="all-namespaces"
+    else
+        namespace_flag="-n $namespace"
+    fi
+    
+    echo -e "${GREEN}Resource Usage Statistics:${NC}"
+    echo -e "${YELLOW}Resource, Namespace, Name, CPU, Memory${NC}"
+    
+    # Get top output and process it
+    kubectl top "$resource_type" $namespace_flag --no-headers 2>/dev/null | while read -r line; do
+        # Extract fields
+        if [[ "$namespace" == "all-namespaces" ]]; then
+            # Format: NAMESPACE NAME CPU(cores) MEMORY(bytes)
+            NAMESPACE=$(echo "$line" | awk '{print $1}')
+            NAME=$(echo "$line" | awk '{print $2}')
+            CPU=$(echo "$line" | awk '{print $3}')
+            MEMORY=$(echo "$line" | awk '{print $4}')
+        else
+            # Format: NAME CPU(cores) MEMORY(bytes)
+            NAME=$(echo "$line" | awk '{print $1}')
+            CPU=$(echo "$line" | awk '{print $2}')
+            MEMORY=$(echo "$line" | awk '{print $3}')
+            NAMESPACE="$namespace"
+        fi
+        
+        # Output in requested format
+        echo "\"$resource_type\", \"$NAMESPACE\", \"$NAME\", \"$CPU\", \"$MEMORY\""
+    done
+    
+    if [[ $? -ne 0 ]]; then
+        echo -e "${RED}Error: Failed to get resource usage. Make sure metrics-server is installed.${NC}"
+        echo "Install metrics-server: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
+        exit 1
+    fi
+}
+
+# Main script logic
+main() {
+    # Check for help flag
+    if [[ "$#" -eq 1 ]]; then
+        case "$1" in
+            --help|-h)
+                show_help
+                exit 0
+                ;;
+            --version|-v)
+                show_version
+                exit 0
+                ;;
+        esac
+    fi
+    
+    # Check arguments
+    if [[ "$#" -ne 2 ]]; then
+        echo -e "${RED}Error: Invalid number of arguments${NC}"
+        show_help
+        exit 1
+    fi
+    
+    local namespace="$1"
+    local resource_type="$2"
+    
+    # Validate inputs
+    check_kubectl
+    validate_resource_type "$resource_type"
+    
+    # Get and display resource usage
+    get_resource_usage "$namespace" "$resource_type"
+}
+
+# Run main function with all arguments
+main "$@"
