@@ -57,26 +57,26 @@ cronjobs - CronJobs
 
 jobs - Jobs
 
-## Команди допомоги
+# Команди допомоги
 
-# Показати довідку
+## Показати довідку
 
 kubectl kubeplugin --help
 kubectl kubeplugin -h
 
-# Показати версію
+## Показати версію
 
 kubectl kubeplugin --version
 kubectl kubeplugin -v
 
 ## Приклади
 
-# Приклад 1: Статистика Pods в kube-system
+## Приклад: Статистика Pods в kube-system
 
 ```bash
 kubectl kubeplugin kube-system pods
 ```
 
-# Вивід
+## Вивід
 
 ![Image](.data/kubeplugin_test.png)
