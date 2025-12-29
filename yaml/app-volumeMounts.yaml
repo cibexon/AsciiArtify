@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-volumes
+spec:
+  selector:
+    matchLabels:
+      app: app-volumes
+  template:
+    metadata:
+      labels:
+        app: app-volumes
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: app-container
+          image: denny/go-demo-app:v1
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: temp-volume
+              mountPath: /tmp
+      volumes:
+        - name: config-volume
+          configMap:
+            name: app-config
+        - name: temp-volume
+          emptyDir: {}

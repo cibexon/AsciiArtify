@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-migration
+spec:
+  completions: 3
+  parallelism: 2
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      containers:
+        - name: migrator
+          image: denny/go-demo-app:v1
+          env:
+            - name: DB_HOST
+              value: "db.production.svc"
+            - name: DB_PORT
+              value: "5432"
+      restartPolicy: OnFailure

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-readiness
+  labels:
+    app: microservice
+    tier: backend
+  annotations:
+    description: "Deployment with TCP readiness probe"
+spec:
+  selector:
+    matchLabels:
+      app: microservice
+  template:
+    metadata:
+      labels:
+        app: microservice
+    spec:
+      containers:
+        - name: microservice-container
+          image: denny/go-demo-app:v1
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10

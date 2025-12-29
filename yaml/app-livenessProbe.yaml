@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-liveness
+spec:
+  selector:
+    matchLabels:
+      app: app-liveness
+  template:
+    metadata:
+      labels:
+        app: app-liveness
+    spec:
+      containers:
+        - name: main-container
+          image: denny/go-demo-app:v1
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-pod
+spec:
+  initContainers:
+    - name: config-init
+      image: busybox
+      command: ["sh", "-c", 'echo "init config" > /data/config.txt']
+      volumeMounts:
+        - name: shared-data
+          mountPath: /data
+  containers:
+    - name: main-app
+      image: denny/go-demo-app:v1
+      ports:
+        - containerPort: 8080
+      volumeMounts:
+        - name: shared-data
+          mountPath: /data
+    - name: logging-sidecar
+      image: busybox
+      command: ["sh", "-c", "tail -f /data/logs.txt"]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /data
+  volumes:
+    - name: shared-data
+      emptyDir: {}

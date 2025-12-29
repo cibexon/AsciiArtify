@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-batch-job
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      backoffLimit: 2
+      template:
+        spec:
+          containers:
+            - name: batch-processor
+              image: denny/go-demo-app:v1
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 64Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+              volumeMounts:
+                - name: log-volume
+                  mountPath: /var/log
+          restartPolicy: OnFailure
+          volumes:
+            - name: log-volume
+              emptyDir: {}
