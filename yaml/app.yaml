@@ -22,16 +22,3 @@ spec:
           env:
             - name: APP_ENV
               value: "production"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: go-app-service
-spec:
-  selector:
-    app: go-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
-  type: ClusterIP
